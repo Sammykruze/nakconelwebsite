@@ -122,6 +122,25 @@ img{max-width:100%;height:auto;display:block;}
 .form-success p{color:var(--muted);font-size:14px;line-height:1.6;}
 
 footer{border-top:1px solid var(--border);padding:80px 24px 40px 24px;position:relative;z-index:2;}
+
+/* ===== Pricing / Inquiry / Chat modals ===== */
+.cm-overlay{position:fixed;inset:0;background:rgba(5,1,1,0.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px;}
+.cm-overlay.open{display:flex;}
+.cm-box{max-width:920px;width:100%;max-height:90vh;overflow-y:auto;background:var(--wine-deep);border:1px solid var(--border);border-radius:var(--r);padding:36px;position:relative;}
+.cm-close{position:sticky;top:0;float:right;background:none;border:none;color:var(--cream);font-size:26px;cursor:pointer;line-height:1;}
+.cm-tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;clear:both;}
+.cm-tier{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;gap:14px;}
+.cm-tier.cm-featured{border-color:var(--bronze);box-shadow:0 0 0 1px var(--bronze);}
+.cm-tier h4{font-family:'Agrandir',sans-serif;font-size:18px;}
+.cm-price{font-family:'Agrandir',sans-serif;font-size:30px;color:var(--bronze-light);}
+.cm-price span{font-size:13px;color:var(--muted);font-family:'Poppins',sans-serif;}
+.cm-tier ul{list-style:none;display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:13px;flex:1;}
+.cm-tier li::before{content:'✓ ';color:var(--bronze);}
+.cm-chat-msgs{flex:1;min-height:280px;max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;clear:both;padding:6px 2px;}
+.cm-msg{max-width:78%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;}
+.cm-msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--bronze),var(--bronze-dim));color:var(--wine-deep);}
+.cm-msg.admin{align-self:flex-start;background:rgba(255,255,255,0.06);color:var(--cream);}
+
 .ft-main{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:48px;margin-bottom:60px;}
 .ft-desc{color:var(--muted);font-size:14px;line-height:1.6;margin:16px 0 24px 0;max-width:320px;}
 .ft-col h5{font-family:'Agrandir',sans-serif;font-size:16px;margin-bottom:24px;color:var(--white);}
@@ -378,7 +397,7 @@ body.auth-modal-open > *:not(.auth-modal-overlay){ filter:blur(6px); transition:
     <div class="ct-info" style="max-width:560px;margin:0 auto;">
       <span class="tag">Join the Movement</span>
       <h3>Claim your spot in the Future Brand Movement.</h3>
-      <p>Sign in with Google to get started — we'll ask a few quick questions about your business so we can follow up and schedule your consultation.</p>
+      <p>Sign up to get started — we'll ask a few quick questions about your business so we can follow up and schedule your consultation.</p>
       <ul class="ct-perks" style="text-align:left;display:inline-block;">
         <li>Free brand intelligence consultation</li>
         <li>Personalized AI &amp; strategy recommendations</li>
@@ -388,12 +407,83 @@ body.auth-modal-open > *:not(.auth-modal-overlay){ filter:blur(6px); transition:
         <button type="button" class="hero-cta" style="font-family:inherit;border:none;" onclick="AuthModal.open({onComplete: campaignAuthComplete})">Get Started ↗</button>
       </div>
       <div id="campaignSuccessMsg" style="display:none;margin-top:28px;padding:20px;background:rgba(201,154,74,0.1);border:1px solid var(--border);border-radius:var(--rs);">
-        <strong style="color:var(--bronze-light);">You're in! ✓</strong>
-        <p style="margin-top:6px;color:var(--muted);font-size:14px;">Thanks for joining the Nakconel Future Brand Movement. Our team will reach out shortly to schedule your consultation.</p>
+        <strong style="color:var(--bronze-light);" id="campSuccessTitle">You're in! ✓</strong>
+        <p style="margin-top:6px;color:var(--muted);font-size:14px;" id="campSuccessBody">Thanks for joining the Nakconel Future Brand Movement. Our team will reach out shortly to schedule your consultation.</p>
+        <button type="button" id="followUpBtn" class="sec-btn" style="margin-top:18px;display:none;font-family:inherit;">Follow Up with Us</button>
       </div>
     </div>
   </div>
 </section>
+
+<!-- PRICING MODAL -->
+<div class="cm-overlay" id="pricingModal">
+  <div class="cm-box">
+    <button class="cm-close" id="closePricing">&times;</button>
+    <div style="text-align:center;margin-bottom:28px;">
+      <span class="tag">Choose Your Package</span>
+      <h3 style="font-family:'Agrandir',sans-serif;font-size:26px;">Pick the depth that fits right now.</h3>
+    </div>
+    <div class="cm-tiers">
+      <div class="cm-tier">
+        <h4>Basic</h4>
+        <div class="cm-price">₦20<span>/session</span></div>
+        <ul>
+          <li>1 brand intelligence consultation</li>
+          <li>AI tool starter pack</li>
+          <li>Written summary &amp; next steps</li>
+        </ul>
+        <button class="hero-cta" style="font-family:inherit;border:none;width:100%;justify-content:center;" onclick="selectPackage('Basic', 2000)">Select Basic</button>
+      </div>
+      <div class="cm-tier cm-featured">
+        <h4>Standard</h4>
+        <div class="cm-price">₦60<span>/session</span></div>
+        <ul>
+          <li>Everything in Basic</li>
+          <li>Brand strategy direction document</li>
+          <li>AI workflow setup guidance</li>
+          <li>Priority follow-up</li>
+        </ul>
+        <button class="hero-cta" style="font-family:inherit;border:none;width:100%;justify-content:center;" onclick="selectPackage('Standard', 6000)">Select Standard</button>
+      </div>
+      <div class="cm-tier">
+        <h4>Custom Enterprise</h4>
+        <div class="cm-price">₦250+</div>
+        <ul>
+          <li>Full brand &amp; AI strategy engagement</li>
+          <li>Dedicated account lead</li>
+          <li>Custom scope &amp; timeline</li>
+        </ul>
+        <button class="sec-btn" style="width:100%;justify-content:center;font-family:inherit;" onclick="openInquiry()">Make an Inquiry</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INQUIRY MODAL -->
+<div class="cm-overlay" id="inquiryModal">
+  <div class="cm-box" style="max-width:460px;">
+    <button class="cm-close" id="closeInquiry">&times;</button>
+    <h3 style="font-family:'Agrandir',sans-serif;font-size:22px;margin-bottom:18px;">Custom Enterprise Inquiry</h3>
+    <div class="form-g"><label>Company name</label><input type="text" id="invCompany"></div>
+    <div class="form-g"><label>Approximate budget (₦)</label><input type="number" id="invAmount" placeholder="250"></div>
+    <div class="form-g"><label>Notes</label><textarea id="invNotes" rows="3" placeholder="Anything we should know before we reach out..."></textarea></div>
+    <button class="submit-btn" id="submitInquiryBtn" style="width:100%;margin-top:8px;">Submit Inquiry</button>
+  </div>
+</div>
+
+<!-- FOLLOW-UP CHAT MODAL -->
+<div class="cm-overlay" id="chatModal">
+  <div class="cm-box" style="max-width:520px;display:flex;flex-direction:column;">
+    <button class="cm-close" id="closeChat">&times;</button>
+    <h3 style="font-family:'Agrandir',sans-serif;font-size:22px;margin-bottom:6px;">Talk to us directly.</h3>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Messages here go straight to our strategy desk.</p>
+    <div class="cm-chat-msgs" id="chatMsgs"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <input type="text" id="chatInput" placeholder="Type a message..." style="flex:1;background:rgba(10,2,2,0.6);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;color:var(--white);font-family:inherit;">
+      <button class="submit-btn" id="chatSendBtn" style="width:auto;padding:12px 20px;">Send</button>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div class="ft-main">
@@ -432,55 +522,36 @@ body.auth-modal-open > *:not(.auth-modal-overlay){ filter:blur(6px); transition:
   </div>
 </footer>
 
-<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <script>
 // =====================================================================
 // SHARED CONFIG — read by auth-modal.js. Same values used in contact.html.
-// Replace the Firebase placeholders with your real project config
-// (Firebase Console → Project Settings → General → Your apps → Web app).
 // =====================================================================
-window.firebaseConfig = {
-  apiKey: "AIzaSyC9I9bp2OnZnGXuf6KxyJKF4fUe6_TCz4I",
-  authDomain: "nakconel.firebaseapp.com",
-  projectId: "nakconel",
-  storageBucket: "nakconel.firebasestorage.app",
-  messagingSenderId: "231520414230",
-  appId: "1:231520414230:web:bdf249f098f33fe42f2337"
-};
-window.SUPABASE_URL = 'https://isyjausvvnposzkglgws.supabase.co';
-window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWphdXN2dm5wb3N6a2dsZ3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODk5MjUsImV4cCI6MjA5ODE2NTkyNX0.1c0Naw_dNorPhzDNtVZEP8kOKtJaXVOKsgH0abXoTRg';
+window.SUPABASE_URL = 'https://vhjatafybwdazrsqrbrd.supabase.co';
+window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZoamF0YWZ5YndkYXpyc3FyYnJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3ODIzMjAsImV4cCI6MjA5ODM1ODMyMH0.JEKwM_LuCpL0Pqr4m0HQtizcCaXJaCZgoJVxu_F5P1A';
+window.PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxx'; // ⚠️ REPLACE with your real Paystack public key (Paystack dashboard → Settings → API Keys)
 </script>
 <script>
 /* =====================================================================
    SHARED AUTH MODAL — auth-modal.js
    Used by campaign.html and contact.html.
+   Email + password, all handled natively by Supabase Auth (no Firebase).
 
    HOW TO USE ON A PAGE:
    1. Include auth-modal.css in <head>.
-   2. Include the Firebase + Supabase SDK <script> tags, then this file,
-      before </body>.
-   3. Make sure `firebaseConfig`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` are
-      defined as globals (window.firebaseConfig, window.SUPABASE_URL,
-      window.SUPABASE_ANON_KEY) before this script runs.
+   2. Include the Supabase SDK <script> tag, then this file, before </body>.
+   3. Make sure `SUPABASE_URL` and `SUPABASE_ANON_KEY` are defined as
+      globals (window.SUPABASE_URL, window.SUPABASE_ANON_KEY) before this
+      script runs.
    4. Call AuthModal.open({ onComplete: (profile) => { ... } }) from a
       button click. onComplete fires once the person is authenticated
-      AND has a complete profile (existing returning users skip straight
-      to onComplete; first-time users go through profile completion
-      first).
+      AND has a complete profile. Returning users with an existing
+      Supabase session are auto-logged-in and skip straight to
+      onComplete (or straight to the profile form if it's incomplete) —
+      no need to log in again on repeat visits.
    5. AuthModal.currentUser() / AuthModal.currentProfile() are available
       any time after onComplete has fired once.
-
-   NOTE ON FIREBASE EMAIL/PASSWORD + SUPABASE:
-   Supabase's signInWithIdToken natively verifies Google ID tokens out of
-   the box. Verifying a generic Firebase (non-Google) ID token requires
-   Supabase to be configured with Firebase as a custom OIDC provider
-   (Authentication → Sign In / Providers → add provider → use your
-   Firebase project's issuer URL: https://securetoken.google.com/YOUR_PROJECT_ID).
-   Until that's configured, Google sign-in will work immediately; email/
-   password sign-in will show a clear error from Supabase until you add
-   that provider. See the chat reply for the exact steps.
    ===================================================================== */
 
 const AuthModal = (function(){
@@ -493,30 +564,39 @@ const AuthModal = (function(){
   let avatarDataUrl = null;
   let _pendingFallbackEmail = '';
   let _pendingExistingProfile = null;
+  let _isNewSignup = false;
 
   // ---- Sanity checks up front, with visible errors instead of silent failure ----
-  if(typeof firebase === 'undefined'){
-    console.error('AuthModal: the Firebase SDK script tags did not load (firebase is undefined). Check the <script src> tags for firebase-app-compat.js and firebase-auth-compat.js are present and load BEFORE auth-modal.js.');
-  }
   if(typeof window.supabase === 'undefined'){
     console.error('AuthModal: the Supabase SDK script tag did not load (window.supabase is undefined). Check the <script src> tag for supabase-js is present and loads BEFORE auth-modal.js.');
   }
-  if(!window.firebaseConfig){
-    console.error('AuthModal: window.firebaseConfig is not set. Make sure the config block runs BEFORE auth-modal.js loads.');
-  }
-
-  // ---- Firebase + Supabase init (shared across pages) ----
-  if(typeof firebase !== 'undefined' && (!firebase.apps || !firebase.apps.length) && window.firebaseConfig){
-    firebase.initializeApp(window.firebaseConfig);
-  }
-  const fbAuth = (typeof firebase !== 'undefined') ? firebase.auth() : null;
-  const googleProvider = (typeof firebase !== 'undefined') ? new firebase.auth.GoogleAuthProvider() : null;
 
   let sb = null;
   try {
     sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
   } catch(e){
     console.error('Supabase failed to load:', e);
+  }
+
+  // ---- Tiny toast notification ----
+  function showToast(message){
+    let toast = document.getElementById('amToast');
+    if(!toast){
+      toast = document.createElement('div');
+      toast.id = 'amToast';
+      toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,#C99A4A,#8B6A2E);color:#1B0404;font-family:"Poppins",sans-serif;font-weight:600;font-size:14px;padding:14px 24px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:99999;opacity:0;transition:opacity 0.3s ease, transform 0.3s ease;pointer-events:none;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(20px)';
+    }, 3200);
   }
 
   // ---- Build modal DOM once ----
@@ -526,21 +606,13 @@ const AuthModal = (function(){
     <div class="auth-modal-card">
       <button class="auth-modal-close" id="amClose" aria-label="Close">✕</button>
 
-      <!-- SCREEN: Google + Email/Password choice -->
+      <!-- SCREEN: Email/Password sign up or log in -->
       <div class="am-screen active" id="amScreenAuth">
         <div class="auth-modal-head">
           <span class="auth-modal-tag">Nakconel</span>
           <h3 class="auth-modal-title">Sign in to continue</h3>
           <p class="auth-modal-sub">Join the conversation or claim your spot in the campaign.</p>
         </div>
-
-        <button type="button" class="am-google-btn" id="amGoogleBtn">
-          <svg class="am-google-icon" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.5 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.5 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.5-2.1 14-5.6l-6.5-5.3C29.5 35 26.9 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.6 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.5 5.3C41.5 36.4 44 30.8 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
-          Continue with Google
-        </button>
-        <p class="am-err" id="amGoogleErr" style="text-align:center;margin-top:10px;"></p>
-
-        <div class="am-divider">or use email</div>
 
         <div class="am-tabs">
           <div class="am-tab active" id="amTabSignup">Sign Up</div>
@@ -614,7 +686,7 @@ const AuthModal = (function(){
   }
 
   // ---- Open / close ----
-  function open(opts){
+  async function open(opts){
     opts = opts || {};
     onCompleteCallback = opts.onComplete || null;
 
@@ -623,9 +695,26 @@ const AuthModal = (function(){
       if(onCompleteCallback) onCompleteCallback(_profile);
       return;
     }
+
+    // ---- Auto-login: if this browser already has a valid Supabase session
+    // (i.e. they created an account before and never logged out), skip the
+    // sign-in screen entirely and resume them straight in. ----
+    if(sb){
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if(session && session.user){
+          overlay.classList.add('show');
+          document.body.classList.add('auth-modal-open');
+          await handlePostAuth(session.user, session.user.user_metadata && session.user.user_metadata.name, session.user.email, null);
+          return;
+        }
+      } catch(ex){
+        console.warn('Auto-login session check failed:', ex);
+      }
+    }
+
     showScreen('auth');
     setMode('signup');
-    document.getElementById('amGoogleErr').textContent = '';
     document.getElementById('amEmailErr').textContent = '';
     overlay.classList.add('show');
     document.body.classList.add('auth-modal-open');
@@ -686,71 +775,7 @@ const AuthModal = (function(){
     showScreen('profile');
   }
 
-  // ---- Shared: exchange Firebase ID token for a Supabase session ----
-  async function firebaseTokenToSupabase(idToken){
-    const sessionResp = await fetch(`${window.SUPABASE_URL}/auth/v1/token?grant_type=id_token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': window.SUPABASE_ANON_KEY },
-      body: JSON.stringify({ id_token: idToken, provider: 'firebase' })
-    });
-    const sessionData = await sessionResp.json();
-    if(!sessionResp.ok || sessionData.error){
-      throw new Error(sessionData.error_description || sessionData.error || sessionData.message || 'Supabase session failed.');
-    }
-    await sb.auth.setSession({ access_token: sessionData.access_token, refresh_token: sessionData.refresh_token || '' });
-    const { data: { user: supaUser } } = await sb.auth.getUser();
-    if(!supaUser) throw new Error('Could not establish session. Please try again.');
-    return supaUser;
-  }
-
-  // ---- Handle redirect result on page load (mobile redirects back here after Google) ----
-  (async () => {
-    try {
-      const result = await fbAuth.getRedirectResult();
-      if(result && result.user){
-        open({ onComplete: onCompleteCallback });
-        const btn = document.getElementById('amGoogleBtn');
-        const err = document.getElementById('amGoogleErr');
-        if(btn) btn.disabled = true;
-        try {
-          const idToken = await result.user.getIdToken();
-          const supaUser = await firebaseTokenToSupabase(idToken);
-          await handlePostAuth(supaUser, result.user.displayName, result.user.email, result.user.photoURL);
-        } catch(ex){
-          console.error('Redirect result processing failed:', ex);
-          if(err) err.textContent = ex.message || 'Sign-in failed. Please try again.';
-        } finally {
-          if(btn) btn.disabled = false;
-        }
-      }
-    } catch(ex){
-      console.log('No redirect result:', ex.message);
-    }
-  })();
-
-  // ---- Google sign-in button (uses redirect — works on all mobile browsers) ----
-  document.getElementById('amGoogleBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('amGoogleBtn');
-    const err = document.getElementById('amGoogleErr');
-    err.textContent = '';
-
-    if(!sb){
-      err.textContent = 'Could not connect to the server. Please check your connection and try again.';
-      return;
-    }
-
-    btn.disabled = true;
-    try {
-      await fbAuth.signInWithRedirect(googleProvider);
-      // Page redirects to Google — getRedirectResult() above handles the return
-    } catch(ex){
-      console.error('Google sign-in failed:', ex);
-      err.textContent = 'Could not sign in with Google. Please try again.';
-      btn.disabled = false;
-    }
-  });
-
-  // ---- Email/password sign-up or log-in ----
+  // ---- Email/password sign-up or log-in (native Supabase Auth) ----
   document.getElementById('amEmailForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = document.getElementById('amEmailErr');
@@ -760,6 +785,7 @@ const AuthModal = (function(){
     const name = document.getElementById('amName').value.trim();
     const email = document.getElementById('amEmail').value.trim();
     const password = document.getElementById('amPassword').value;
+
 
     if(mode === 'signup' && !name){
       err.textContent = 'Please enter your name.';
@@ -778,30 +804,33 @@ const AuthModal = (function(){
     btn.textContent = mode === 'signup' ? 'Signing up…' : 'Logging in…';
 
     try {
-      let fbUser;
+      let supaUser;
       if(mode === 'signup'){
-        const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
-        fbUser = cred.user;
-        await fbUser.updateProfile({ displayName: name });
+        const { data, error } = await sb.auth.signUp({
+          email, password,
+          options: { data: { name } }
+        });
+        if(error){
+          err.textContent = error.message || 'Sign-up failed. Please try again.';
+          btn.disabled = false;
+          btn.textContent = 'Sign Up ↗';
+          return;
+        }
+        supaUser = data.user;
+        _isNewSignup = true;
       } else {
-        const cred = await fbAuth.signInWithEmailAndPassword(email, password);
-        fbUser = cred.user;
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if(error){
+          err.textContent = error.message || 'Log-in failed. Check your email and password.';
+          btn.disabled = false;
+          btn.textContent = 'Log In ↗';
+          return;
+        }
+        supaUser = data.user;
+        _isNewSignup = false;
       }
 
-      const idToken = await fbUser.getIdToken();
-      const { data, error } = await sb.auth.signInWithIdToken({ provider: 'firebase', token: idToken });
-
-      if(error){
-        // Supabase's signInWithIdToken natively verifies Google tokens. A generic
-        // Firebase (email/password) token needs Firebase added as a custom OIDC
-        // provider in Supabase — see the note at the top of this file.
-        err.textContent = error.message || 'Sign-in failed. Please try again.';
-        btn.disabled = false;
-        btn.textContent = mode === 'signup' ? 'Sign Up ↗' : 'Log In ↗';
-        return;
-      }
-
-      await handlePostAuth(data.user, name || fbUser.displayName, email, null);
+      await handlePostAuth(supaUser, name, email, null);
     } catch(ex){
       console.error('Email auth failed:', ex);
       err.textContent = (ex && ex.message) ? ex.message : 'Something went wrong. Please try again.';
@@ -894,6 +923,10 @@ const AuthModal = (function(){
       avatarFile = null;
       avatarDataUrl = null;
       close();
+      if(_isNewSignup){
+        showToast('Your account has been created ✓');
+        _isNewSignup = false;
+      }
       if(onCompleteCallback) onCompleteCallback(_profile);
     } catch(ex){
       console.error('Profile save failed:', ex);
@@ -931,11 +964,174 @@ const AuthModal = (function(){
 
 <script>
 // What happens after sign-in + profile completion on the campaign page:
-// just show the success message inline (their info is already saved to
-// the shared `profiles` table by the auth modal — name, phone, business idea).
+// their info is already saved to the shared `profiles` table by the auth
+// modal (name, phone, business idea) — now show the inline confirmation
+// and open the pricing modal so they can pick a package.
+let _campaignSupa = null;
+function getCampaignSupa(){
+  if(!_campaignSupa) _campaignSupa = AuthModal.supabaseClient();
+  return _campaignSupa;
+}
+
 function campaignAuthComplete(profile){
   document.getElementById('campaignSuccessMsg').style.display = 'block';
   document.getElementById('campaignSuccessMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('pricingModal').classList.add('open');
+}
+
+// ===== PRICING MODAL =====
+document.getElementById('closePricing').addEventListener('click', () => {
+  document.getElementById('pricingModal').classList.remove('open');
+});
+
+function selectPackage(packageName, amountKobo){
+  document.getElementById('pricingModal').classList.remove('open');
+  payWithPaystack(amountKobo, packageName);
+}
+
+function payWithPaystack(amountKobo, packageName){
+  const user = AuthModal.currentUser();
+  const profile = AuthModal.currentProfile();
+  if(!user){ alert('Please sign up first.'); return; }
+
+  if(!window.PAYSTACK_PUBLIC_KEY || window.PAYSTACK_PUBLIC_KEY.includes('xxxxx')){
+    alert('Paystack is not connected yet — add your real public key (window.PAYSTACK_PUBLIC_KEY) to enable live payment.');
+    return;
+  }
+
+  const reference = 'NAKCONEL-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+  const handler = PaystackPop.setup({
+    key: window.PAYSTACK_PUBLIC_KEY,
+    email: user.email,
+    amount: amountKobo,
+    currency: 'NGN',
+    ref: reference,
+    metadata: { package: packageName, campaign: 'NAKCONEL Future Brand Movement' },
+    callback: function(response){
+      recordSignup(packageName, amountKobo, 'paid', response.reference);
+      showCampaignSuccess(`Your ${packageName} package is confirmed. Our strategy desk will reach out shortly.`);
+    },
+    onClose: function(){
+      recordSignup(packageName, amountKobo, 'pending', reference);
+    }
+  });
+  handler.openIframe();
+}
+
+async function recordSignup(packageName, amountKobo, status, reference){
+  const sb = getCampaignSupa();
+  const user = AuthModal.currentUser();
+  if(!sb || !user) return;
+  await sb.from('campaign_signups').insert({
+    profile_id: user.id,
+    package_selected: packageName,
+    amount_paid: amountKobo,
+    payment_status: status,
+    paystack_reference: reference
+  });
+}
+
+// ===== CUSTOM / INQUIRY FLOW =====
+function openInquiry(){
+  document.getElementById('pricingModal').classList.remove('open');
+  document.getElementById('inquiryModal').classList.add('open');
+}
+document.getElementById('closeInquiry').addEventListener('click', () => {
+  document.getElementById('inquiryModal').classList.remove('open');
+});
+document.getElementById('submitInquiryBtn').addEventListener('click', async () => {
+  const sb = getCampaignSupa();
+  const user = AuthModal.currentUser();
+  if(!sb || !user) return;
+
+  const company = document.getElementById('invCompany').value.trim();
+  const amount = parseInt(document.getElementById('invAmount').value) || 0;
+  const notes = document.getElementById('invNotes').value.trim();
+  if(!company){ alert('Please enter your company name.'); return; }
+
+  await sb.from('inquiries').insert({
+    profile_id: user.id,
+    company_name: company,
+    desired_amount: amount,
+    additional_notes: notes,
+    status: 'pending'
+  });
+  await recordSignup('Custom', 0, 'inquiry', null);
+  document.getElementById('inquiryModal').classList.remove('open');
+  showCampaignSuccess('Your enterprise inquiry is in. Our team will reach out to scope this properly.');
+});
+
+// ===== SUCCESS STATE =====
+function showCampaignSuccess(message){
+  document.getElementById('campSuccessTitle').textContent = "You're in ✓";
+  document.getElementById('campSuccessBody').textContent = message;
+  document.getElementById('campaignSuccessMsg').style.display = 'block';
+  document.getElementById('followUpBtn').style.display = 'inline-flex';
+  document.getElementById('campaignSuccessMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ===== FOLLOW-UP CHAT =====
+let chatChannel = null;
+document.getElementById('followUpBtn').addEventListener('click', async () => {
+  document.getElementById('chatModal').classList.add('open');
+  await loadMessages();
+  subscribeToMessages();
+});
+document.getElementById('closeChat').addEventListener('click', () => {
+  document.getElementById('chatModal').classList.remove('open');
+});
+
+async function loadMessages(){
+  const sb = getCampaignSupa();
+  const user = AuthModal.currentUser();
+  if(!sb || !user) return;
+  const { data } = await sb.from('messages')
+    .select('*')
+    .eq('conversation_id', user.email)
+    .order('created_at', { ascending: true });
+  const box = document.getElementById('chatMsgs');
+  box.innerHTML = '';
+  (data || []).forEach(renderMessage);
+  box.scrollTop = box.scrollHeight;
+}
+
+function renderMessage(m){
+  const box = document.getElementById('chatMsgs');
+  const div = document.createElement('div');
+  div.className = 'cm-msg ' + (m.sender_type === 'user' ? 'user' : 'admin');
+  div.textContent = m.content;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function subscribeToMessages(){
+  const sb = getCampaignSupa();
+  const user = AuthModal.currentUser();
+  if(!sb || !user) return;
+  if(chatChannel) sb.removeChannel(chatChannel);
+  chatChannel = sb.channel('messages-' + user.id)
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${user.email}` },
+      payload => renderMessage(payload.new)
+    ).subscribe();
+}
+
+document.getElementById('chatSendBtn').addEventListener('click', sendChat);
+document.getElementById('chatInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendChat(); });
+
+async function sendChat(){
+  const sb = getCampaignSupa();
+  const user = AuthModal.currentUser();
+  const input = document.getElementById('chatInput');
+  const content = input.value.trim();
+  if(!content || !sb || !user) return;
+  input.value = '';
+  await sb.from('messages').insert({
+    profile_id: user.id,
+    conversation_id: user.email,
+    sender_type: 'user',
+    content
+  });
 }
 
 // ===== ABOUT DROPDOWN =====
